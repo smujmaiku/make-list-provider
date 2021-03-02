@@ -60,7 +60,7 @@ Returns the Provider's list of values.
 
 ```js
 export function useRow(name) {
-	const list = useListing();
+	const list = useList();
 	const [row] = list.filter(row => row.name === name);
 	return row;
 }

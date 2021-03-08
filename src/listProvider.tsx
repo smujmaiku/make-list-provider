@@ -36,31 +36,34 @@ export function listRecords<T>(records: Record<string, RecordRow<T>>): T[] {
 export default function makeListProvider<T>(): MakeListProviderT<T> {
 	let registerCount = 0;
 	let orderCount = 0;
+	let orderingTime = 0;
 
-	const context = createContext<ContextT<T> | undefined>(undefined);
-
+	const context = createContext<ContextT<T> | null>(null);
 
 	function useOrderingRoot(skip = false) {
 		useLayoutEffect(() => {
 			if (skip) return;
 			orderCount = 0;
+			orderingTime = Date.now();
 		});
 	}
 
 	function useOrdering() {
 		const [[time, index], setIndex] = useState(() => [
-			Date.now(),
+			orderingTime,
 			orderCount + 1
 		]);
+
 		useLayoutEffect(() => {
 			const order = orderCount++;
 
 			// Prevent cpu thrashing
-			if (time === Date.now()) return;
+			if (time === orderingTime) return;
 
 			if (order === index) return;
-			setIndex([Date.now(), order]);
+			setIndex([orderingTime, order]);
 		});
+
 		return index;
 	}
 	function useList(): T[] {

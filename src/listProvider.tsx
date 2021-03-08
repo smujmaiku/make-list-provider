@@ -66,6 +66,7 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 
 		return index;
 	}
+
 	function useList(): T[] {
 		const [list] = useContext(context) as ContextT<T>;
 		return list;

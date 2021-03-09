@@ -40,7 +40,7 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 
 	const context = createContext<ContextT<T> | null>(null);
 
-	function useOrderingRoot(skip = false) {
+	function useOrderingRoot(skip: boolean) {
 		useLayoutEffect(() => {
 			if (skip) return;
 			orderCount = 0;
@@ -55,10 +55,10 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 		]);
 
 		useLayoutEffect(() => {
-			const order = orderCount++;
-
 			// Prevent cpu thrashing
 			if (time === orderingTime) return;
+
+			const order = orderCount++;
 
 			if (order === index) return;
 			setIndex([orderingTime, order]);
@@ -97,16 +97,21 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 
 	function recordsReducer(state: Record<string, RecordRow<T>>, action: RecordsActionT<T>): Record<string, RecordRow<T>> {
 		const [type, id, order, payload] = action;
-		if (type === 'set') {
-			return {
-				...state,
-				[id]: [order, payload],
+
+		switch (type) {
+			case 'set':
+				return {
+					...state,
+					[id]: [order, payload],
+				}
+			case 'remove': {
+				const newState = { ...state };
+				delete newState[id];
+				return newState;
 			}
-		} else if (type === 'remove') {
-			const newState = { ...state };
-			delete newState[id];
-			return newState;
 		}
+
+		/* istanbul ignore next: unreachable */
 		return state;
 	}
 

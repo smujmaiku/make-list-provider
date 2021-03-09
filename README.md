@@ -54,15 +54,42 @@ export function Component({ name }) {
 }
 ```
 
-Returns the Provider's list of values.
-
 ### useList
+
+Returns the Provider's list of values in order.
 
 ```js
 export function useRow(name) {
 	const list = useList();
 	const [row] = list.filter(row => row.name === name);
 	return row;
+}
+```
+
+## Notes
+
+### Ordering children
+
+Per `useLayoutEffect`'s call order, a parent element will be ordered after it's children.
+To avoid unexpect results, you should not nest children under an element that is calling `useListing`.
+This behavior may change in the future.
+
+```jsx
+function Row({ children }) {
+	useListing();
+	return children || null;
+}
+
+function App() {
+	return (
+		<Provider>
+			<Row />	// 1
+			<Row>	// 3
+				<Row />	// 2
+			</Row>
+			<Row />	// 4
+		</Provider>
+	);
 }
 ```
 

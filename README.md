@@ -91,6 +91,7 @@ function App() {
 		</Provider>
 	);
 }
+```
 
 ## License
 

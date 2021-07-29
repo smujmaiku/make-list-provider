@@ -4,7 +4,17 @@
  * MIT Licensed
  */
 
-import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState, useLayoutEffect } from 'react';
+import React, {
+	createContext,
+	useContext,
+	useRef,
+	useMemo,
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useReducer,
+	useState,
+} from 'react';
 import { justObservable } from 'just-observable';
 
 export type RecordRow<T> = [order: number, value: T];
@@ -73,21 +83,23 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 	}
 
 	function useListing(state: T): void {
+		// State is just needed for initialization
+		const stateRef = useRef<T>(state);
+		useEffect(() => { stateRef.current = state; }, [state])
+
 		const observable = useMemo(() => justObservable<RecordRow<T>>(), []);
 
 		const [, register] = useContext(context) as ContextT<T>;
 		const order = useOrdering();
 
 		useEffect(() => {
-			const [set, unregister] = register(state);
+			const [set, unregister] = register(stateRef.current);
 			const unsubscribe = observable.subscribe(set);
 
 			return () => {
 				unregister();
 				unsubscribe();
 			}
-			// State is just needed for initialization
-			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [register, observable]);
 
 		useEffect(() => {

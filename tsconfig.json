@@ -1,9 +1,5 @@
 {
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-    ],
     "esModuleInterop": true,
     "target": "es2017",
     "module": "commonjs",

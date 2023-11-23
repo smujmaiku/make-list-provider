@@ -111,3 +111,4 @@ export function makeListProvider<T>(): MakeListProviderT<T> {
 export default makeListProvider;
 
 export * from './unorderedProvider';
+export * from './domProvider';

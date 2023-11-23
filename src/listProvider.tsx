@@ -26,14 +26,26 @@ export interface ProviderPropsI<T> {
 export type ListProviderT<T> = (props: ProviderPropsI<T>) => JSX.Element;
 export type UseListingT<T> = (state: T) => void;
 export type UseList<T> = () => T[];
-export type MakeListProviderT<T> = [ListProviderT<T>, UseListingT<T>, UseList<T>];
+export type MakeListProviderT<T> = [
+	ListProviderT<T>,
+	UseListingT<T>,
+	UseList<T>
+];
 
 export type RegisterListingSet<T> = (value: RecordRow<T>) => void;
-export type RegisterListingT<T> = [set: RegisterListingSet<T>, unregister: () => void];
+export type RegisterListingT<T> = [
+	set: RegisterListingSet<T>,
+	unregister: () => void
+];
 export type RegisterListing<T> = (value: T) => RegisterListingT<T>;
 export type ContextT<T> = [T[], RegisterListing<T>];
 
-export type RecordsActionSetT<T> = [type: 'set', id: string, order: number, payload: T];
+export type RecordsActionSetT<T> = [
+	type: 'set',
+	id: string,
+	order: number,
+	payload: T
+];
 export type RecordsActionRemoveT = [type: 'remove', id: string];
 export type RecordsActionT<T> = RecordsActionSetT<T> | RecordsActionRemoveT;
 
@@ -48,7 +60,7 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 	let orderCount = 0;
 	let orderingTime = 0;
 
-	const context = createContext<ContextT<T> | null>(null);
+	const context = createContext<ContextT<T>>(null!);
 
 	function useOrderingRoot(skip: boolean) {
 		useLayoutEffect(() => {
@@ -61,14 +73,16 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 	function useOrdering() {
 		const [[time, index], setIndex] = useState(() => [
 			orderingTime,
-			orderCount + 1
+			orderCount + 1,
 		]);
 
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		useLayoutEffect(() => {
 			// Prevent cpu thrashing
 			if (time === orderingTime) return;
 
-			const order = orderCount++;
+			const order = orderCount;
+			orderCount += 1;
 
 			if (order === index) return;
 			setIndex([orderingTime, order]);
@@ -85,7 +99,9 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 	function useListing(state: T): void {
 		// State is just needed for initialization
 		const stateRef = useRef<T>(state);
-		useEffect(() => { stateRef.current = state; }, [state])
+		useEffect(() => {
+			stateRef.current = state;
+		}, [state]);
 
 		const observable = useMemo(() => justObservable<RecordRow<T>>(), []);
 
@@ -99,7 +115,7 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 			return () => {
 				unregister();
 				unsubscribe();
-			}
+			};
 		}, [register, observable]);
 
 		useEffect(() => {
@@ -107,7 +123,10 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 		}, [order, state, observable]);
 	}
 
-	function recordsReducer(state: Record<string, RecordRow<T>>, action: RecordsActionT<T>): Record<string, RecordRow<T>> {
+	function recordsReducer(
+		state: Record<string, RecordRow<T>>,
+		action: RecordsActionT<T>
+	): Record<string, RecordRow<T>> {
 		const [type, id, order, payload] = action;
 
 		switch (type) {
@@ -115,28 +134,28 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 				return {
 					...state,
 					[id]: [order, payload],
-				}
+				};
 			case 'remove': {
 				const newState = { ...state };
 				delete newState[id];
 				return newState;
 			}
+			/* istanbul ignore next: unreachable */
+			default:
+				return state;
 		}
-
-		/* istanbul ignore next: unreachable */
-		return state;
 	}
 
 	function Provider(props: ProviderPropsI<T>): JSX.Element {
-		const {
-			onChange,
-			children,
-		} = props;
+		const { onChange, children } = props;
 
 		const isRootProvider = useContext(context) === null;
 		useOrderingRoot(!isRootProvider);
 
-		const [records, dispatch] = useReducer(recordsReducer, {} as Record<string, RecordRow<T>>);
+		const [records, dispatch] = useReducer(
+			recordsReducer,
+			{} as Record<string, RecordRow<T>>
+		);
 		const state = useMemo(() => listRecords(records), [records]);
 
 		useEffect(() => {
@@ -144,26 +163,31 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 			onChange(state);
 		}, [onChange, state]);
 
-		const register = useCallback((init: T): RegisterListingT<T> => {
-			const registerId = (registerCount++).toString(36);
+		const register = useCallback(
+			(init: T): RegisterListingT<T> => {
+				const registerId = registerCount.toString(36);
+				registerCount += 1;
 
-			const set = ([order, value]: RecordRow<T>) => {
-				dispatch(['set', registerId, order, value]);
-			};
-			set([Infinity, init])
+				const set = ([order, value]: RecordRow<T>) => {
+					dispatch(['set', registerId, order, value]);
+				};
+				set([Infinity, init]);
 
-			const unregister = () => {
-				dispatch(['remove', registerId]);
-			};
+				const unregister = () => {
+					dispatch(['remove', registerId]);
+				};
 
-			return [set, unregister];
-		}, [dispatch]);
-
-		return (
-			<context.Provider value={[state, register]}>
-				{children}
-			</context.Provider>
+				return [set, unregister];
+			},
+			[dispatch]
 		);
+
+		const value: ContextT<T> = useMemo(
+			() => [state, register],
+			[state, register]
+		);
+
+		return <context.Provider value={value}>{children}</context.Provider>;
 	}
 
 	return [Provider, useListing, useList];

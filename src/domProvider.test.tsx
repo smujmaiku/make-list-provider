@@ -4,11 +4,11 @@ import makeDomProvider from './domProvider';
 
 describe('domProvider', () => {
 	it('should list stats in order', () => {
-		const [Provider, useListing] = makeDomProvider<string>();
+		const [Provider, useItem] = makeDomProvider<string>();
 
 		const Row = ({ name }: { name: string }): JSX.Element => {
 			const ref = useRef<HTMLDivElement>(null!);
-			useListing(ref, name);
+			useItem(ref, name);
 			return <div ref={ref} />;
 		};
 
@@ -83,7 +83,7 @@ describe('domProvider', () => {
 	});
 
 	it('should allow list access inside and out', () => {
-		const [Provider, useListing, useList] = makeDomProvider<string>();
+		const [Provider, useItem, useList] = makeDomProvider<string>();
 
 		let innerList: string[] = [];
 		const GetList = (): JSX.Element => {
@@ -99,7 +99,7 @@ describe('domProvider', () => {
 
 		const Row = ({ name }: { name: string }): JSX.Element => {
 			const ref = useRef<HTMLDivElement>(null!);
-			useListing(ref, name);
+			useItem(ref, name);
 			return <div ref={ref} />;
 		};
 

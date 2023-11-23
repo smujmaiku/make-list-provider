@@ -20,27 +20,27 @@ export interface UProviderPropsI<T> {
 	children?: React.ReactNode;
 }
 export type UListProviderT<T> = (props: UProviderPropsI<T>) => JSX.Element;
-export type UseUListingT<T> = (state: T) => void;
+export type UseUItemT<T> = (state: T) => void;
 export type UseUList<T> = () => T[];
 export type MakeUnorderedProviderT<T> = [
 	UListProviderT<T>,
-	UseUListingT<T>,
+	UseUItemT<T>,
 	UseUList<T>
 ];
 
-export type RegisterUListingSet<T> = (value: T) => void;
-export type RegisterUListingT<T> = [
-	set: RegisterUListingSet<T>,
+export type RegisterUItemSet<T> = (value: T) => void;
+export type RegisterUItemT<T> = [
+	set: RegisterUItemSet<T>,
 	unregister: () => void
 ];
-export type RegisterUListing<T> = (value: T) => RegisterUListingT<T>;
-export type UListContextT<T> = [T[], RegisterUListing<T>];
+export type RegisterUItem<T> = (value: T) => RegisterUItemT<T>;
+export type UListContextT<T> = [T[], RegisterUItem<T>];
 
 export type UActionSetT<T> = [type: 'set', id: string, payload: T];
 export type UActionRemoveT = [type: 'remove', id: string];
 export type UActionT<T> = UActionSetT<T> | UActionRemoveT;
 
-function listRecords<T>(records: Record<string, T>): T[] {
+function listValues<T>(records: Record<string, T>): T[] {
 	return Object.values(records);
 }
 
@@ -54,7 +54,7 @@ export function makeUnorderedProvider<T>(): MakeUnorderedProviderT<T> {
 		return list;
 	}
 
-	function useListing(state: T): void {
+	function useItem(state: T): void {
 		const stateRef = useRef<T>(null!);
 		stateRef.current = state;
 
@@ -62,7 +62,7 @@ export function makeUnorderedProvider<T>(): MakeUnorderedProviderT<T> {
 
 		const [, register] = useContext(context) as UListContextT<T>;
 
-		// Register listing
+		// Register item
 		useEffect(() => {
 			const [set, unregister] = register(stateRef.current);
 			const unsubscribe = observable.subscribe(set);
@@ -73,7 +73,7 @@ export function makeUnorderedProvider<T>(): MakeUnorderedProviderT<T> {
 			};
 		}, [register, observable]);
 
-		// Update listing
+		// Update item
 		useEffect(() => {
 			observable.next(state);
 		}, [state, observable]);
@@ -109,14 +109,14 @@ export function makeUnorderedProvider<T>(): MakeUnorderedProviderT<T> {
 			recordsReducer,
 			{} as Record<string, T>
 		);
-		const state = useMemo(() => listRecords(records), [records]);
+		const state = useMemo(() => listValues(records), [records]);
 
 		useEffect(() => {
 			onChange?.(state);
 		}, [onChange, state]);
 
 		const register = useCallback(
-			(init: T): RegisterUListingT<T> => {
+			(init: T): RegisterUItemT<T> => {
 				const registerId = registerCount.toString(36);
 				registerCount += 1;
 
@@ -142,7 +142,7 @@ export function makeUnorderedProvider<T>(): MakeUnorderedProviderT<T> {
 		return <context.Provider value={value}>{children}</context.Provider>;
 	}
 
-	return [Provider, useListing, useList];
+	return [Provider, useItem, useList];
 }
 
 export default makeUnorderedProvider;

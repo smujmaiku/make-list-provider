@@ -23,21 +23,25 @@ export interface ProviderPropsI<T> {
 	children?: React.ReactNode;
 }
 export type DomProviderT<T> = (props: ProviderPropsI<T>) => JSX.Element;
-export type UseDomListingT<T> = (
+export type UseDomItemT<T> = (
 	ref: React.MutableRefObject<HTMLElement>,
 	state: T
 ) => void;
 export type UseDomList<T> = () => T[];
 export type MakeDomListProviderT<T> = [
 	DomProviderT<T>,
-	UseDomListingT<T>,
+	UseDomItemT<T>,
 	UseDomList<T>
 ];
 
-function listRecords<T>(records: RecordRow<T>[]): T[] {
+function listValues<T>(records: RecordRow<T>[]): T[] {
 	return records.sort(([a], [b]) => (a < b ? -1 : 1)).map(([, v]) => v);
 }
 
+/**
+ * Creates a provider to store an ordered list of items
+ * @returns [Provider, useItem, useList]
+ */
 export function makeDomListProvider<T>(): MakeDomListProviderT<T> {
 	const domContext = createContext<[ProviderPropsI<T>['parentRef'], T[]]>(
 		null!
@@ -50,6 +54,7 @@ export function makeDomListProvider<T>(): MakeDomListProviderT<T> {
 
 		const [parentRef] = useContext(domContext);
 
+		// Update key based on dom changes
 		useEffect(() => {
 			const update = () => {
 				let newKey: string = '';
@@ -88,10 +93,7 @@ export function makeDomListProvider<T>(): MakeDomListProviderT<T> {
 		return useContext(domContext)[1];
 	}
 
-	function useListing(
-		ref: React.MutableRefObject<HTMLElement>,
-		state: T
-	): void {
+	function useItem(ref: React.MutableRefObject<HTMLElement>, state: T): void {
 		const order = useOrdering(ref);
 		const value: RecordRow<T> = useMemo(() => [order, state], [order, state]);
 
@@ -103,7 +105,7 @@ export function makeDomListProvider<T>(): MakeDomListProviderT<T> {
 
 		const [unordered, setUnordered] = useState<RecordRow<T>[]>([]);
 
-		const state = useMemo(() => listRecords(unordered), [unordered]);
+		const state = useMemo(() => listValues(unordered), [unordered]);
 
 		useEffect(() => {
 			if (!onChange) return;
@@ -122,7 +124,7 @@ export function makeDomListProvider<T>(): MakeDomListProviderT<T> {
 		);
 	}
 
-	return [Provider, useListing, useList];
+	return [Provider, useItem, useList];
 }
 
 export default makeDomListProvider;

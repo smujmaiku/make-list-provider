@@ -21,15 +21,11 @@ export interface ProviderPropsI<T> {
 	children?: React.ReactNode;
 }
 export type ListProviderT<T> = (props: ProviderPropsI<T>) => JSX.Element;
-export type UseListingT<T> = (state: T) => void;
+export type UseItemT<T> = (state: T) => void;
 export type UseList<T> = () => T[];
-export type MakeListProviderT<T> = [
-	ListProviderT<T>,
-	UseListingT<T>,
-	UseList<T>
-];
+export type MakeListProviderT<T> = [ListProviderT<T>, UseItemT<T>, UseList<T>];
 
-function listRecords<T>(records: RecordRow<T>[]): T[] {
+function listValues<T>(records: RecordRow<T>[]): T[] {
 	return records.sort(([a], [b]) => a - b).map(([, v]) => v);
 }
 
@@ -76,7 +72,7 @@ export function makeListProvider<T>(): MakeListProviderT<T> {
 		return useContext(orderedContext);
 	}
 
-	function useListing(state: T): void {
+	function useItem(state: T): void {
 		const order = useOrdering();
 		const value: RecordRow<T> = useMemo(() => [order, state], [order, state]);
 
@@ -91,7 +87,7 @@ export function makeListProvider<T>(): MakeListProviderT<T> {
 		const isRootProvider = !(useUnorderedList() instanceof Array);
 		useOrderingRoot(!isRootProvider);
 
-		const state = useMemo(() => listRecords(unordered), [unordered]);
+		const state = useMemo(() => listValues(unordered), [unordered]);
 
 		useEffect(() => {
 			if (!onChange) return;
@@ -105,7 +101,7 @@ export function makeListProvider<T>(): MakeListProviderT<T> {
 		);
 	}
 
-	return [Provider, useListing, useList];
+	return [Provider, useItem, useList];
 }
 
 export default makeListProvider;

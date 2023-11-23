@@ -4,10 +4,10 @@ import makeListProvider from './listProvider';
 
 describe('listProvider', () => {
 	it('should list stats in order', () => {
-		const [Provider, useListing] = makeListProvider<string>();
+		const [Provider, useItem] = makeListProvider<string>();
 
 		const Row = ({ name }: { name: string }): JSX.Element => {
-			useListing(name);
+			useItem(name);
 			return null!;
 		};
 
@@ -52,7 +52,7 @@ describe('listProvider', () => {
 
 		render(<App />);
 
-		act(() => {});
+		act(() => { });
 
 		expect(skipSome).toEqual(false);
 		expect(list).toEqual(['A', 'B', 'C', 'D', 'H']);
@@ -76,7 +76,7 @@ describe('listProvider', () => {
 	});
 
 	it('should allow list access inside and out', () => {
-		const [Provider, useListing, useList] = makeListProvider<string>();
+		const [Provider, useItem, useList] = makeListProvider<string>();
 
 		let innerList: string[] = [];
 		const GetList = (): JSX.Element => {
@@ -91,7 +91,7 @@ describe('listProvider', () => {
 		};
 
 		const Row = ({ name }: { name: string }): JSX.Element => {
-			useListing(name);
+			useItem(name);
 			return null!;
 		};
 
@@ -125,7 +125,7 @@ describe('listProvider', () => {
 
 		render(<App />);
 
-		act(() => {});
+		act(() => { });
 
 		expect(list).toBe(innerList);
 		expect(sublist).toBe(innerSublist);

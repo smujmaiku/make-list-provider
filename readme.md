@@ -9,7 +9,7 @@ Make a react list provider to store hook states and actions.
 ## Usage
 
 ```js
-const [Provider, useListing, useList] = makeListProvider();
+const [Provider, useItem, useList] = makeListProvider();
 ```
 
 ### Provider
@@ -34,9 +34,9 @@ return (
 );
 ```
 
-### useListing
+### useItem
 
-Creates a row in the Provider's list.
+Creates an entry in the Provider's list.
 Any value can be supplied as the argument.
 Changes to the value will update the Provider's callback and `useList` hook.
 
@@ -44,7 +44,7 @@ Changes to the value will update the Provider's callback and `useList` hook.
 export function Component({ name }) {
 	const [state, setState] = useState(() => Math.random());
 
-	useListing(useMemo(() => ({
+	useItem(useMemo(() => ({
 		name,
 		state,
 		setState,
@@ -59,10 +59,10 @@ export function Component({ name }) {
 Returns the Provider's list of values in order.
 
 ```js
-export function useRow(name) {
+export function useItemByName(name) {
 	const list = useList();
-	const [row] = list.filter(row => row.name === name);
-	return row;
+	const [item] = list.filter(item => item.name === name);
+	return item;
 }
 ```
 
@@ -71,23 +71,23 @@ export function useRow(name) {
 ### Ordering children
 
 Per `useLayoutEffect`'s call order, a parent element will be ordered after it's children.
-To avoid unexpect results, you should not nest children under an element that is calling `useListing`.
+To avoid unexpect results, you should not nest children under an element that is calling `useItem`.
 This behavior may change in the future.
 
 ```jsx
-function Row({ children }) {
-	useListing();
-	return children || null;
+function Item({ children }) {
+	useItem();
+	return children;
 }
 
 function App() {
 	return (
 		<Provider>
-			<Row />	// 1
-			<Row>	// 3
-				<Row />	// 2
-			</Row>
-			<Row />	// 4
+			<Item />	// 1
+			<Item>	// 3
+				<Item />	// 2
+			</Item>
+			<Item />	// 4
 		</Provider>
 	);
 }

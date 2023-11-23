@@ -29,6 +29,35 @@ function listValues<T>(records: RecordRow<T>[]): T[] {
 	return records.sort(([a], [b]) => a - b).map(([, v]) => v);
 }
 
+/**
+ * Creates a provider to store an ordered list of items
+ * @returns [Provider, useItem, useList]
+ *
+ * @example
+ * @example
+ * const [CanvasProvider, useDraw, useDrawList] = makeListProvider();
+ *
+ * function RenderCanvas() {
+ *   const drawCallbacks = useDrawList();
+ *   // ...
+ *   return <canvas ref={ref} />
+ * }
+ *
+ * function DrawBox(props) {
+ *   // ...
+ *   useDraw(drawCallback);
+ * }
+ *
+ * function App() {
+ *   return (
+ *     <CanvasProvider>
+ *       <RenderCanvas />
+ *       <DrawBox rect={[1,2]} />
+ *       <DrawBox rect={[2,3]} />
+ *     </CanvasProvider>
+ *   );
+ * }
+ */
 export function makeListProvider<T>(): MakeListProviderT<T> {
 	let orderCount = 0;
 	let orderingTime = 0;

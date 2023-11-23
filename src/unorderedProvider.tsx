@@ -44,6 +44,31 @@ function listValues<T>(records: Record<string, T>): T[] {
 	return Object.values(records);
 }
 
+/**
+ * Creates a provider to store a list of items
+ * @returns [Provider, useItem, useList]
+ *
+ * @example
+ * const [SocketsProvider, useSocket, useSocketList] = makeListProvider();
+ *
+ * function useSocketByName(name) {
+ *   return useSocketList().filter(socket => socket.name === name);
+ * }
+ *
+ * function Socket(props) {
+ *   // ...
+ *   useSocket(socket);
+ * }
+ *
+ * function App() {
+ *   return (
+ *     <SocketsProvider>
+ *       <Socket port={8080} />
+ *       <Socket port={8081} />
+ *     </SocketsProvider>
+ *   );
+ * }
+ */
 export function makeUnorderedProvider<T>(): MakeUnorderedProviderT<T> {
 	let registerCount = 0;
 

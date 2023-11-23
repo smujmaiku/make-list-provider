@@ -39,8 +39,32 @@ function listValues<T>(records: RecordRow<T>[]): T[] {
 }
 
 /**
- * Creates a provider to store an ordered list of items
+ * Creates a provider to store an ordered list of items based on dom subtree
  * @returns [Provider, useItem, useList]
+ *
+ * @example
+ * const [OptionsProvider, useOption, useOptionList] = makeListProvider();
+ *
+ * function Option(props) {
+ *   const options = useOptionList();
+ *   // ...
+ *   useOption(ref, value);
+ *   const index = options.indexOf(option);
+ *   return (
+ *     <option ref={ref}>{index}</option>
+ *   );
+ * }
+ *
+ * function App() {
+ *   return (
+ *     <select ref={ref}>
+ *       <OptionsProvider parentRef={ref}>
+ *         <Option />
+ *         <Option />
+ *       </OptionsProvider>
+ *     </select>
+ *   );
+ * }
  */
 export function makeDomListProvider<T>(): MakeDomListProviderT<T> {
 	const domContext = createContext<[ProviderPropsI<T>['parentRef'], T[]]>(

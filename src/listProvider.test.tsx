@@ -9,7 +9,7 @@ describe('listProvider', () => {
 
 		const Row = ({ name }: { name: string }): JSX.Element => {
 			useListing(name);
-			return null;
+			return null!;
 		};
 
 		let [skipSome, setSkipSome]: [boolean, React.Dispatch<React.SetStateAction<boolean>>] = [false, () => { return; }];
@@ -73,18 +73,18 @@ describe('listProvider', () => {
 		let innerList: string[] = [];
 		const GetList = (): JSX.Element => {
 			innerList = useList();
-			return null;
+			return null!;
 		}
 
 		let innerSublist: string[] = [];
 		const GetSublist = (): JSX.Element => {
 			innerSublist = useList();
-			return null;
+			return null!;
 		}
 
 		const Row = ({ name }: { name: string }): JSX.Element => {
 			useListing(name);
-			return null;
+			return null!;
 		};
 
 		let [list, setList]: [string[], React.Dispatch<React.SetStateAction<string[]>>] = [[], () => { return; }];

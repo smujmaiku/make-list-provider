@@ -1,19 +1,23 @@
 {
-  "compilerOptions": {
-    "esModuleInterop": true,
-    "target": "es2017",
-    "module": "commonjs",
-    "declaration": true,
-    "jsx": "react",
-    "outDir": "./lib"
-  },
-  "include": [
-    "./src"
-  ],
-  "exclude": [
-    "node_modules",
-    "coverage",
-    "lib",
-    "**/*.test.*"
-  ]
+	"compilerOptions": {
+		"module": "esnext",
+		"target": "es2020",
+		"lib": ["es2020", "dom"],
+		"jsx": "preserve",
+    "allowSyntheticDefaultImports": true,
+		"moduleResolution": "node",
+		"strict": true,
+		"declaration": true,
+		"outDir": "./build"
+	},
+	"include": [
+		"./src"
+	],
+	"exclude": [
+		"node_modules",
+		"coverage",
+		"build",
+		"**/*.stories.*",
+		"**/*.test.*"
+	]
 }

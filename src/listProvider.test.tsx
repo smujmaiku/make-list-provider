@@ -1,5 +1,4 @@
-import { mocked } from 'ts-jest/utils';
-import { act, render, screen } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import React, { useLayoutEffect, useState } from 'react';
 import makeListProvider from './listProvider';
 
@@ -12,9 +11,18 @@ describe('listProvider', () => {
 			return null!;
 		};
 
-		let [skipSome, setSkipSome]: [boolean, React.Dispatch<React.SetStateAction<boolean>>] = [false, () => { return; }];
-		let [list, setList]: [string[], React.Dispatch<React.SetStateAction<string[]>>] = [[], () => { return; }];
-		let [sublist, setSublist]: [string[], React.Dispatch<React.SetStateAction<string[]>>] = [[], () => { return; }];
+		let [skipSome, setSkipSome]: [
+			boolean,
+			React.Dispatch<React.SetStateAction<boolean>>
+		] = [false, () => {}];
+		let [list, setList]: [
+			string[],
+			React.Dispatch<React.SetStateAction<string[]>>
+		] = [[], () => {}];
+		let [sublist, setSublist]: [
+			string[],
+			React.Dispatch<React.SetStateAction<string[]>>
+		] = [[], () => {}];
 
 		const App = (): JSX.Element => {
 			[skipSome, setSkipSome] = useState<boolean>(false);
@@ -44,7 +52,7 @@ describe('listProvider', () => {
 
 		render(<App />);
 
-		act(() => { });
+		act(() => {});
 
 		expect(skipSome).toEqual(false);
 		expect(list).toEqual(['A', 'B', 'C', 'D', 'H']);
@@ -74,21 +82,27 @@ describe('listProvider', () => {
 		const GetList = (): JSX.Element => {
 			innerList = useList();
 			return null!;
-		}
+		};
 
 		let innerSublist: string[] = [];
 		const GetSublist = (): JSX.Element => {
 			innerSublist = useList();
 			return null!;
-		}
+		};
 
 		const Row = ({ name }: { name: string }): JSX.Element => {
 			useListing(name);
 			return null!;
 		};
 
-		let [list, setList]: [string[], React.Dispatch<React.SetStateAction<string[]>>] = [[], () => { return; }];
-		let [sublist, setSublist]: [string[], React.Dispatch<React.SetStateAction<string[]>>] = [[], () => { return; }];
+		let [list, setList]: [
+			string[],
+			React.Dispatch<React.SetStateAction<string[]>>
+		] = [[], () => {}];
+		let [sublist, setSublist]: [
+			string[],
+			React.Dispatch<React.SetStateAction<string[]>>
+		] = [[], () => {}];
 
 		const App = (): JSX.Element => {
 			[list, setList] = useState<string[]>([]);
@@ -111,7 +125,7 @@ describe('listProvider', () => {
 
 		render(<App />);
 
-		act(() => { });
+		act(() => {});
 
 		expect(list).toBe(innerList);
 		expect(sublist).toBe(innerSublist);
@@ -129,15 +143,15 @@ describe('React', () => {
 				useLayoutEffect(() => {
 					const value = `A${id}`;
 					if (state.length < 3) {
-						setState(s => [...s, value]);
-					};
+						setState((s) => [...s, value]);
+					}
 					list.push(value);
 				});
 				useLayoutEffect(() => {
 					const value = `B${id}`;
 					if (state.length < 3) {
-						setState(s => [...s, value]);
-					};
+						setState((s) => [...s, value]);
+					}
 					list.push(value);
 				});
 
@@ -151,7 +165,20 @@ describe('React', () => {
 				</div>
 			);
 			expect(wrapper.container.textContent).toEqual('A1B1A1B1A2B2A2B2');
-			expect(list).toEqual(['A1', 'B1', 'A2', 'B2', 'A1', 'B1', 'A2', 'B2', 'A1', 'B1', 'A2', 'B2']);
+			expect(list).toEqual([
+				'A1',
+				'B1',
+				'A2',
+				'B2',
+				'A1',
+				'B1',
+				'A2',
+				'B2',
+				'A1',
+				'B1',
+				'A2',
+				'B2',
+			]);
 		});
 	});
 });

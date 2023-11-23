@@ -1,0 +1,4 @@
+{
+	"main": "./listProvider.js",
+	"types": "./listProvider.d.ts"
+}

@@ -14,7 +14,7 @@ import React, {
 } from 'react';
 import makeUnorderedProvider from './unorderedProvider';
 
-export type RecordRow<T> = [order: number, value: T];
+type RecordRow<T> = [order: number, value: T];
 
 export interface ProviderPropsI<T> {
 	onChange?: (state: T[]) => void;

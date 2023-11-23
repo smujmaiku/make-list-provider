@@ -14,15 +14,15 @@ describe('listProvider', () => {
 		let [skipSome, setSkipSome]: [
 			boolean,
 			React.Dispatch<React.SetStateAction<boolean>>
-		] = [false, () => {}];
+		] = [false, jest.fn()];
 		let [list, setList]: [
 			string[],
 			React.Dispatch<React.SetStateAction<string[]>>
-		] = [[], () => {}];
+		] = [[], jest.fn()];
 		let [sublist, setSublist]: [
 			string[],
 			React.Dispatch<React.SetStateAction<string[]>>
-		] = [[], () => {}];
+		] = [[], jest.fn()];
 
 		const App = (): JSX.Element => {
 			[skipSome, setSkipSome] = useState<boolean>(false);
@@ -98,11 +98,11 @@ describe('listProvider', () => {
 		let [list, setList]: [
 			string[],
 			React.Dispatch<React.SetStateAction<string[]>>
-		] = [[], () => {}];
+		] = [[], jest.fn()];
 		let [sublist, setSublist]: [
 			string[],
 			React.Dispatch<React.SetStateAction<string[]>>
-		] = [[], () => {}];
+		] = [[], jest.fn()];
 
 		const App = (): JSX.Element => {
 			[list, setList] = useState<string[]>([]);

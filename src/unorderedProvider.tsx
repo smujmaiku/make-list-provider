@@ -36,9 +36,9 @@ export type RegisterUListingT<T> = [
 export type RegisterUListing<T> = (value: T) => RegisterUListingT<T>;
 export type UListContextT<T> = [T[], RegisterUListing<T>];
 
-export type RecordsUActionSetT<T> = [type: 'set', id: string, payload: T];
-export type RecordsUActionRemoveT = [type: 'remove', id: string];
-export type RecordsUActionT<T> = RecordsUActionSetT<T> | RecordsUActionRemoveT;
+export type UActionSetT<T> = [type: 'set', id: string, payload: T];
+export type UActionRemoveT = [type: 'remove', id: string];
+export type UActionT<T> = UActionSetT<T> | UActionRemoveT;
 
 function listRecords<T>(records: Record<string, T>): T[] {
 	return Object.values(records);
@@ -81,7 +81,7 @@ export function makeUnorderedProvider<T>(): MakeUnorderedProviderT<T> {
 
 	function recordsReducer(
 		state: Record<string, T>,
-		action: RecordsUActionT<T>
+		action: UActionT<T>
 	): Record<string, T> {
 		const [type, id, payload] = action;
 

@@ -4,7 +4,14 @@
  * MIT Licensed
  */
 
-import React, { useMemo, useEffect, useLayoutEffect, useState } from 'react';
+import React, {
+	useMemo,
+	useEffect,
+	useLayoutEffect,
+	useState,
+	useContext,
+	createContext,
+} from 'react';
 import makeUnorderedProvider from './unorderedProvider';
 
 export type RecordRow<T> = [order: number, value: T];
@@ -29,6 +36,8 @@ function listRecords<T>(records: RecordRow<T>[]): T[] {
 export function makeListProvider<T>(): MakeListProviderT<T> {
 	let orderCount = 0;
 	let orderingTime = 0;
+
+	const orderedContext = createContext<T[]>([]);
 
 	const [UProvider, useUnordered, useUnorderedList] =
 		makeUnorderedProvider<RecordRow<T>>();
@@ -64,9 +73,7 @@ export function makeListProvider<T>(): MakeListProviderT<T> {
 	}
 
 	function useList(): T[] {
-		const unordered = useUnorderedList();
-		const ordered = useMemo(() => listRecords(unordered), [unordered]);
-		return ordered;
+		return useContext(orderedContext);
 	}
 
 	function useListing(state: T): void {
@@ -91,7 +98,11 @@ export function makeListProvider<T>(): MakeListProviderT<T> {
 			onChange(state);
 		}, [onChange, state]);
 
-		return <UProvider onChange={setUnordered}>{children}</UProvider>;
+		return (
+			<orderedContext.Provider value={state}>
+				<UProvider onChange={setUnordered}>{children}</UProvider>
+			</orderedContext.Provider>
+		);
 	}
 
 	return [Provider, useListing, useList];

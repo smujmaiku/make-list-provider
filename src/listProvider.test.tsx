@@ -140,6 +140,7 @@ describe('React', () => {
 			const Counter = ({ id }: { id: string }): JSX.Element => {
 				const [state, setState] = useState<string[]>([]);
 
+				// eslint-disable-next-line react-hooks/exhaustive-deps
 				useLayoutEffect(() => {
 					const value = `A${id}`;
 					if (state.length < 3) {
@@ -147,6 +148,8 @@ describe('React', () => {
 					}
 					list.push(value);
 				});
+
+				// eslint-disable-next-line react-hooks/exhaustive-deps
 				useLayoutEffect(() => {
 					const value = `B${id}`;
 					if (state.length < 3) {

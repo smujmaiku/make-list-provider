@@ -60,7 +60,7 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 	let orderCount = 0;
 	let orderingTime = 0;
 
-	const context = createContext<ContextT<T> | null>(null);
+	const context = createContext<ContextT<T>>(null!);
 
 	function useOrderingRoot(skip: boolean) {
 		useLayoutEffect(() => {
@@ -76,11 +76,13 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 			orderCount + 1,
 		]);
 
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		useLayoutEffect(() => {
 			// Prevent cpu thrashing
 			if (time === orderingTime) return;
 
-			const order = orderCount++;
+			const order = orderCount;
+			orderCount += 1;
 
 			if (order === index) return;
 			setIndex([orderingTime, order]);
@@ -138,10 +140,10 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 				delete newState[id];
 				return newState;
 			}
+			/* istanbul ignore next: unreachable */
+			default:
+				return state;
 		}
-
-		/* istanbul ignore next: unreachable */
-		return state;
 	}
 
 	function Provider(props: ProviderPropsI<T>): JSX.Element {
@@ -163,7 +165,8 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 
 		const register = useCallback(
 			(init: T): RegisterListingT<T> => {
-				const registerId = (registerCount++).toString(36);
+				const registerId = registerCount.toString(36);
+				registerCount += 1;
 
 				const set = ([order, value]: RecordRow<T>) => {
 					dispatch(['set', registerId, order, value]);
@@ -179,9 +182,12 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 			[dispatch]
 		);
 
-		return (
-			<context.Provider value={[state, register]}>{children}</context.Provider>
+		const value: ContextT<T> = useMemo(
+			() => [state, register],
+			[state, register]
 		);
+
+		return <context.Provider value={value}>{children}</context.Provider>;
 	}
 
 	return [Provider, useListing, useList];

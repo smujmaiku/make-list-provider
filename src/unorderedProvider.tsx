@@ -50,7 +50,7 @@ export function makeUnorderedProvider<T>(): MakeUnorderedProviderT<T> {
 	const context = createContext<UListContextT<T>>(null!);
 
 	function useList(): T[] {
-		const [list] = useContext(context) as UListContextT<T>;
+		const [list] = useContext(context) || [];
 		return list;
 	}
 

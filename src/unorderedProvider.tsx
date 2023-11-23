@@ -112,8 +112,7 @@ export function makeUnorderedProvider<T>(): MakeUnorderedProviderT<T> {
 		const state = useMemo(() => listRecords(records), [records]);
 
 		useEffect(() => {
-			if (!onChange) return;
-			onChange(state);
+			onChange?.(state);
 		}, [onChange, state]);
 
 		const register = useCallback(

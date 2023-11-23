@@ -22,23 +22,6 @@ export type MakeListProviderT<T> = [
 	UseList<T>
 ];
 
-export type RegisterListingSet<T> = (value: RecordRow<T>) => void;
-export type RegisterListingT<T> = [
-	set: RegisterListingSet<T>,
-	unregister: () => void
-];
-export type RegisterListing<T> = (value: T) => RegisterListingT<T>;
-export type ListContextT<T> = [T[], RegisterListing<T>];
-
-export type RecordsActionSetT<T> = [
-	type: 'set',
-	id: string,
-	order: number,
-	payload: T
-];
-export type RecordsActionRemoveT = [type: 'remove', id: string];
-export type RecordsActionT<T> = RecordsActionSetT<T> | RecordsActionRemoveT;
-
 function listRecords<T>(records: RecordRow<T>[]): T[] {
 	return records.sort(([a], [b]) => a - b).map(([, v]) => v);
 }

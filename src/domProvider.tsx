@@ -48,8 +48,7 @@ function listValues<T>(records: RecordRow<T>[]): T[] {
  * function Option(props) {
  *   const options = useOptionList();
  *   // ...
- *   useOption(ref, value);
- *   const index = options.indexOf(option);
+ *   const index = useOption(ref, value);
  *   return (
  *     <option ref={ref}>{index}</option>
  *   );

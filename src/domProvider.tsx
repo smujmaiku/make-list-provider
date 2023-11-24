@@ -28,7 +28,7 @@ export type UseDomItemT<T> = (
 	state: T
 ) => void;
 export type UseDomList<T> = () => T[];
-export type MakeDomListProviderT<T> = [
+export type MakeDomProviderT<T> = [
 	DomProviderT<T>,
 	UseDomItemT<T>,
 	UseDomList<T>
@@ -66,7 +66,7 @@ function listValues<T>(records: RecordRow<T>[]): T[] {
  *   );
  * }
  */
-export function makeDomListProvider<T>(): MakeDomListProviderT<T> {
+export function makeDomProvider<T>(): MakeDomProviderT<T> {
 	const domContext = createContext<[ProviderPropsI<T>['parentRef'], T[]]>(
 		null!
 	);
@@ -151,4 +151,4 @@ export function makeDomListProvider<T>(): MakeDomListProviderT<T> {
 	return [Provider, useItem, useList];
 }
 
-export default makeDomListProvider;
+export default makeDomProvider;

@@ -26,7 +26,7 @@ export type DomProviderT<T> = (props: ProviderPropsI<T>) => JSX.Element;
 export type UseDomItemT<T> = (
 	ref: React.MutableRefObject<HTMLElement>,
 	state: T
-) => void;
+) => number;
 export type UseDomList<T> = () => T[];
 export type MakeDomProviderT<T> = [
 	DomProviderT<T>,
@@ -71,7 +71,8 @@ export function makeDomProvider<T>(): MakeDomProviderT<T> {
 		null!
 	);
 
-	const [UProvider, useUnordered] = makeUnorderedProvider<RecordRow<T>>();
+	const [UProvider, useUnordered, useUnorderedList] =
+		makeUnorderedProvider<RecordRow<T>>();
 
 	function useOrdering(ref: React.MutableRefObject<HTMLElement>): string {
 		const [key, setKey] = useState<string>('');
@@ -117,11 +118,14 @@ export function makeDomProvider<T>(): MakeDomProviderT<T> {
 		return useContext(domContext)[1];
 	}
 
-	function useItem(ref: React.MutableRefObject<HTMLElement>, state: T): void {
+	function useItem(ref: React.MutableRefObject<HTMLElement>, state: T): number {
 		const order = useOrdering(ref);
 		const value: RecordRow<T> = useMemo(() => [order, state], [order, state]);
 
 		useUnordered(value);
+
+		const list = useUnorderedList();
+		return list.map(([o]) => o).filter((o) => o < order).length;
 	}
 
 	function Provider(props: ProviderPropsI<T>): JSX.Element {

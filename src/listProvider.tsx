@@ -21,7 +21,7 @@ export interface ProviderPropsI<T> {
 	children?: React.ReactNode;
 }
 export type ListProviderT<T> = (props: ProviderPropsI<T>) => JSX.Element;
-export type UseItemT<T> = (state: T) => void;
+export type UseItemT<T> = (state: T) => number;
 export type UseList<T> = () => T[];
 export type MakeListProviderT<T> = [ListProviderT<T>, UseItemT<T>, UseList<T>];
 
@@ -100,11 +100,14 @@ export function makeListProvider<T>(): MakeListProviderT<T> {
 		return useContext(orderedContext);
 	}
 
-	function useItem(state: T): void {
+	function useItem(state: T): number {
 		const order = useOrdering();
 		const value: RecordRow<T> = useMemo(() => [order, state], [order, state]);
 
 		useUnordered(value);
+
+		const list = useUnorderedList();
+		return list.map(([o]) => o).filter((o) => o < order).length;
 	}
 
 	function Provider(props: ProviderPropsI<T>): JSX.Element {

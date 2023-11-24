@@ -49,7 +49,7 @@ function listValues<T>(records: Record<string, T>): T[] {
  * @returns [Provider, useItem, useList]
  *
  * @example
- * const [SocketsProvider, useSocket, useSocketList] = makeListProvider();
+ * const [SocketsProvider, useSocket, useSocketList] = makeUnorderedProvider();
  *
  * function useSocketByName(name) {
  *   return useSocketList().filter(socket => socket.name === name);

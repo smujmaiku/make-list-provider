@@ -34,7 +34,6 @@ function listValues<T>(records: RecordRow<T>[]): T[] {
  * @returns [Provider, useItem, useList]
  *
  * @example
- * @example
  * const [CanvasProvider, useDraw, useDrawList] = makeListProvider();
  *
  * function RenderCanvas() {

@@ -43,7 +43,7 @@ function listValues<T>(records: RecordRow<T>[]): T[] {
  * @returns [Provider, useItem, useList]
  *
  * @example
- * const [OptionsProvider, useOption, useOptionList] = makeListProvider();
+ * const [OptionsProvider, useOption, useOptionList] = makeDomProvider();
  *
  * function Option(props) {
  *   const options = useOptionList();

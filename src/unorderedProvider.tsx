@@ -52,7 +52,7 @@ function listValues<T>(records: Record<string, T>): T[] {
  * const [SocketsProvider, useSocket, useSocketList] = makeUnorderedProvider();
  *
  * function useSocketByName(name) {
- *   return useSocketList().filter(socket => socket.name === name);
+ *   return useSocketList().find(socket => socket.name === name);
  * }
  *
  * function Socket(props) {

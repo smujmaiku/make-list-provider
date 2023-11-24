@@ -58,7 +58,7 @@ Returns the Provider's list of values.
 ```js
 export function useItemByName(name) {
 	const list = useList();
-	const [item] = list.filter(item => item.name === name);
+	const item = list.find(item => item.name === name);
 	return item;
 }
 ```
@@ -106,7 +106,7 @@ This is useful for something like tracking many socket connections or local stor
 const [SocketsProvider, useSocket, useSocketList] = makeUnorderedProvider();
 
 function useSocketByName(name) {
-	return useSocketList().filter(socket => socket.name === name);
+	return useSocketList().find(socket => socket.name === name);
 }
 
 function Socket(props) {

@@ -52,7 +52,7 @@ describe('listProvider', () => {
 
 		render(<App />);
 
-		act(() => { });
+		act(() => {});
 
 		expect(skipSome).toEqual(false);
 		expect(list).toEqual(['A', 'B', 'C', 'D', 'H']);
@@ -125,7 +125,7 @@ describe('listProvider', () => {
 
 		render(<App />);
 
-		act(() => { });
+		act(() => {});
 
 		expect(list).toBe(innerList);
 		expect(sublist).toBe(innerSublist);

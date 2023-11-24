@@ -59,7 +59,7 @@ describe('domProvider', () => {
 
 		render(<App />);
 
-		act(() => { });
+		act(() => {});
 
 		expect(skipSome).toEqual(false);
 		expect(list).toEqual(['A', 'B', 'C', 'D', 'H']);
@@ -143,7 +143,7 @@ describe('domProvider', () => {
 
 		render(<App />);
 
-		act(() => { });
+		act(() => {});
 
 		expect(list).toBe(innerList);
 		expect(sublist).toBe(innerSublist);

@@ -5,10 +5,11 @@ import makeDomProvider from './domProvider';
 describe('domProvider', () => {
 	it('should list stats in order', () => {
 		const [Provider, useItem] = makeDomProvider<string>();
+		const orderMap: Record<string, number> = {};
 
 		const Row = ({ name }: { name: string }): JSX.Element => {
 			const ref = useRef<HTMLDivElement>(null!);
-			useItem(ref, name);
+			orderMap[name] = useItem(ref, name);
 			return <div ref={ref} />;
 		};
 
@@ -59,7 +60,7 @@ describe('domProvider', () => {
 
 		render(<App />);
 
-		act(() => {});
+		act(() => { });
 
 		expect(skipSome).toEqual(false);
 		expect(list).toEqual(['A', 'B', 'C', 'D', 'H']);
@@ -80,10 +81,22 @@ describe('domProvider', () => {
 		expect(skipSome).toEqual(false);
 		expect(list).toEqual(['A', 'B', 'C', 'D', 'H']);
 		expect(sublist).toEqual(['E', 'F', 'G']);
+
+		expect(orderMap).toEqual({
+			A: 0,
+			B: 1,
+			C: 2,
+			D: 3,
+			E: 0,
+			F: 1,
+			G: 2,
+			H: 4,
+		});
 	});
 
 	it('should allow list access inside and out', () => {
 		const [Provider, useItem, useList] = makeDomProvider<string>();
+		const orderMap: Record<string, number> = {};
 
 		let innerList: string[] = [];
 		const GetList = (): JSX.Element => {
@@ -99,7 +112,7 @@ describe('domProvider', () => {
 
 		const Row = ({ name }: { name: string }): JSX.Element => {
 			const ref = useRef<HTMLDivElement>(null!);
-			useItem(ref, name);
+			orderMap[name] = useItem(ref, name);
 			return <div ref={ref} />;
 		};
 
@@ -143,9 +156,16 @@ describe('domProvider', () => {
 
 		render(<App />);
 
-		act(() => {});
+		act(() => { });
 
 		expect(list).toBe(innerList);
 		expect(sublist).toBe(innerSublist);
+
+		expect(orderMap).toEqual({
+			A: 0,
+			B: 1,
+			E: 0,
+			F: 1,
+		});
 	});
 });

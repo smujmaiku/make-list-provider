@@ -5,9 +5,10 @@ import makeListProvider from './listProvider';
 describe('listProvider', () => {
 	it('should list stats in order', () => {
 		const [Provider, useItem] = makeListProvider<string>();
+		const orderMap: Record<string, number> = {};
 
 		const Row = ({ name }: { name: string }): JSX.Element => {
-			useItem(name);
+			orderMap[name] = useItem(name);
 			return null!;
 		};
 
@@ -52,7 +53,7 @@ describe('listProvider', () => {
 
 		render(<App />);
 
-		act(() => {});
+		act(() => { });
 
 		expect(skipSome).toEqual(false);
 		expect(list).toEqual(['A', 'B', 'C', 'D', 'H']);
@@ -73,10 +74,22 @@ describe('listProvider', () => {
 		expect(skipSome).toEqual(false);
 		expect(list).toEqual(['A', 'B', 'C', 'D', 'H']);
 		expect(sublist).toEqual(['E', 'F', 'G']);
+
+		expect(orderMap).toEqual({
+			A: 0,
+			B: 1,
+			C: 2,
+			D: 3,
+			E: 0,
+			F: 1,
+			G: 2,
+			H: 4,
+		});
 	});
 
 	it('should allow list access inside and out', () => {
 		const [Provider, useItem, useList] = makeListProvider<string>();
+		const orderMap: Record<string, number> = {};
 
 		let innerList: string[] = [];
 		const GetList = (): JSX.Element => {
@@ -91,7 +104,7 @@ describe('listProvider', () => {
 		};
 
 		const Row = ({ name }: { name: string }): JSX.Element => {
-			useItem(name);
+			orderMap[name] = useItem(name);
 			return null!;
 		};
 
@@ -125,10 +138,17 @@ describe('listProvider', () => {
 
 		render(<App />);
 
-		act(() => {});
+		act(() => { });
 
 		expect(list).toBe(innerList);
 		expect(sublist).toBe(innerSublist);
+
+		expect(orderMap).toEqual({
+			A: 0,
+			B: 1,
+			E: 0,
+			F: 1,
+		});
 	});
 });
 

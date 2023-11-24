@@ -37,11 +37,13 @@ Creates an entry in the Provider's list.
 Any value can be supplied as the argument.
 Changes to the value will update the Provider's callback and `useList` hook.
 
+For ordered providers, `useItem` will return the index of the item in the ordered list.
+
 ```js
 export function Component({ name }) {
 	const [state, setState] = useState(() => Math.random());
 
-	useItem(useMemo(() => ({
+	const index = useItem(useMemo(() => ({
 		name,
 		state,
 		setState,
@@ -137,8 +139,7 @@ const [OptionsProvider, useOption, useOptionList] = makeDomProvider();
 function Option(props) {
 	const options = useOptionList();
 	// ...
-	useOption(ref, value);
-	const index = options.indexOf(option);
+	const index = useOption(ref, value);
 	return (
 		<option ref={ref}>{index}</option>
 	);

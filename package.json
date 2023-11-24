@@ -1,7 +1,7 @@
 {
   "name": "make-list-provider",
   "version": "0.4.0",
-  "description": "Use hooks like an Array",
+  "description": "Use hooks for an array of needful",
   "main": "build/listProvider.js",
   "types": "build/listProvider.d.ts",
   "scripts": {

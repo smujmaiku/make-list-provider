@@ -5,63 +5,68 @@
  */
 
 import React, {
-	createContext,
-	useContext,
-	useRef,
 	useMemo,
-	useCallback,
 	useEffect,
 	useLayoutEffect,
-	useReducer,
 	useState,
+	useContext,
+	createContext,
 } from 'react';
-import { justObservable } from 'just-observable';
+import makeUnorderedProvider from './unorderedProvider';
 
-export type RecordRow<T> = [order: number, value: T];
+type RecordRow<T> = [order: number, value: T];
 
 export interface ProviderPropsI<T> {
 	onChange?: (state: T[]) => void;
 	children?: React.ReactNode;
 }
 export type ListProviderT<T> = (props: ProviderPropsI<T>) => JSX.Element;
-export type UseListingT<T> = (state: T) => void;
+export type UseItemT<T> = (state: T) => void;
 export type UseList<T> = () => T[];
-export type MakeListProviderT<T> = [
-	ListProviderT<T>,
-	UseListingT<T>,
-	UseList<T>
-];
+export type MakeListProviderT<T> = [ListProviderT<T>, UseItemT<T>, UseList<T>];
 
-export type RegisterListingSet<T> = (value: RecordRow<T>) => void;
-export type RegisterListingT<T> = [
-	set: RegisterListingSet<T>,
-	unregister: () => void
-];
-export type RegisterListing<T> = (value: T) => RegisterListingT<T>;
-export type ContextT<T> = [T[], RegisterListing<T>];
-
-export type RecordsActionSetT<T> = [
-	type: 'set',
-	id: string,
-	order: number,
-	payload: T
-];
-export type RecordsActionRemoveT = [type: 'remove', id: string];
-export type RecordsActionT<T> = RecordsActionSetT<T> | RecordsActionRemoveT;
-
-export function listRecords<T>(records: Record<string, RecordRow<T>>): T[] {
-	return Object.values(records)
-		.sort(([a], [b]) => a - b)
-		.map(([, v]) => v);
+function listValues<T>(records: RecordRow<T>[]): T[] {
+	return records.sort(([a], [b]) => a - b).map(([, v]) => v);
 }
 
-export default function makeListProvider<T>(): MakeListProviderT<T> {
-	let registerCount = 0;
+/**
+ * Creates a provider to store an ordered list of items
+ * @returns [Provider, useItem, useList]
+ *
+ * @example
+ * const [CanvasProvider, useDraw, useDrawList] = makeListProvider();
+ *
+ * function RenderCanvas() {
+ *   const drawCallbacks = useDrawList();
+ *   // ...
+ *   return <canvas ref={ref} />
+ * }
+ *
+ * function DrawBox(props) {
+ *   // ...
+ *   useDraw(drawCallback);
+ * }
+ *
+ * function App() {
+ *   return (
+ *     <CanvasProvider>
+ *       <RenderCanvas />
+ *       <DrawBox rect={[1,2]} />
+ *       <DrawBox rect={[2,3]} />
+ *     </CanvasProvider>
+ *   );
+ * }
+ */
+export function makeListProvider<T>(): MakeListProviderT<T> {
 	let orderCount = 0;
 	let orderingTime = 0;
 
-	const context = createContext<ContextT<T>>(null!);
+	const orderedContext = createContext<T[]>([]);
 
+	const [UProvider, useUnordered, useUnorderedList] =
+		makeUnorderedProvider<RecordRow<T>>();
+
+	// Prevent restarting counts in nested providers
 	function useOrderingRoot(skip: boolean) {
 		useLayoutEffect(() => {
 			if (skip) return;
@@ -92,103 +97,42 @@ export default function makeListProvider<T>(): MakeListProviderT<T> {
 	}
 
 	function useList(): T[] {
-		const [list] = useContext(context) as ContextT<T>;
-		return list;
+		return useContext(orderedContext);
 	}
 
-	function useListing(state: T): void {
-		// State is just needed for initialization
-		const stateRef = useRef<T>(state);
-		useEffect(() => {
-			stateRef.current = state;
-		}, [state]);
-
-		const observable = useMemo(() => justObservable<RecordRow<T>>(), []);
-
-		const [, register] = useContext(context) as ContextT<T>;
+	function useItem(state: T): void {
 		const order = useOrdering();
+		const value: RecordRow<T> = useMemo(() => [order, state], [order, state]);
 
-		useEffect(() => {
-			const [set, unregister] = register(stateRef.current);
-			const unsubscribe = observable.subscribe(set);
-
-			return () => {
-				unregister();
-				unsubscribe();
-			};
-		}, [register, observable]);
-
-		useEffect(() => {
-			observable.next([order, state]);
-		}, [order, state, observable]);
-	}
-
-	function recordsReducer(
-		state: Record<string, RecordRow<T>>,
-		action: RecordsActionT<T>
-	): Record<string, RecordRow<T>> {
-		const [type, id, order, payload] = action;
-
-		switch (type) {
-			case 'set':
-				return {
-					...state,
-					[id]: [order, payload],
-				};
-			case 'remove': {
-				const newState = { ...state };
-				delete newState[id];
-				return newState;
-			}
-			/* istanbul ignore next: unreachable */
-			default:
-				return state;
-		}
+		useUnordered(value);
 	}
 
 	function Provider(props: ProviderPropsI<T>): JSX.Element {
 		const { onChange, children } = props;
 
-		const isRootProvider = useContext(context) === null;
+		const [unordered, setUnordered] = useState<RecordRow<T>[]>([]);
+
+		const isRootProvider = !(useUnorderedList() instanceof Array);
 		useOrderingRoot(!isRootProvider);
 
-		const [records, dispatch] = useReducer(
-			recordsReducer,
-			{} as Record<string, RecordRow<T>>
-		);
-		const state = useMemo(() => listRecords(records), [records]);
+		const state = useMemo(() => listValues(unordered), [unordered]);
 
 		useEffect(() => {
 			if (!onChange) return;
 			onChange(state);
 		}, [onChange, state]);
 
-		const register = useCallback(
-			(init: T): RegisterListingT<T> => {
-				const registerId = registerCount.toString(36);
-				registerCount += 1;
-
-				const set = ([order, value]: RecordRow<T>) => {
-					dispatch(['set', registerId, order, value]);
-				};
-				set([Infinity, init]);
-
-				const unregister = () => {
-					dispatch(['remove', registerId]);
-				};
-
-				return [set, unregister];
-			},
-			[dispatch]
+		return (
+			<orderedContext.Provider value={state}>
+				<UProvider onChange={setUnordered}>{children}</UProvider>
+			</orderedContext.Provider>
 		);
-
-		const value: ContextT<T> = useMemo(
-			() => [state, register],
-			[state, register]
-		);
-
-		return <context.Provider value={value}>{children}</context.Provider>;
 	}
 
-	return [Provider, useListing, useList];
+	return [Provider, useItem, useList];
 }
+
+export default makeListProvider;
+
+export * from './unorderedProvider';
+export * from './domProvider';
